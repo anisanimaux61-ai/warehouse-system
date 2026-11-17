@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المديرية</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-primary px-4 mb-4">
+        <span class="navbar-brand fw-bold">لوحة تحكم مقر المديرية</span>
+        <a href="/logout" class="btn btn-outline-light btn-sm">تسجيل الخروج</a>
+    </nav>
+
+    <div class="container">
+        <div class="row g-4">
+            <!-- قسم إرسال ملف أو عمل -->
+            <div class="col-md-7">
+                <div class="card shadow-sm p-4">
+                    <h5 class="fw-bold mb-3 text-primary">إرسال ملف أو تعليمة عمل</h5>
+                    <form action="/admin/send-task" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">الجهة المستلمة</label>
+                            <select name="target_email" id="warehouseSelect" class="form-select" required>
+                                <option value="all">📢 إرسال إلى جميع المخازن</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">عنوان الموضوع / العمل</label>
+                            <input type="text" name="title" class="form-control" placeholder="مثال: جرد شهر نوفمبر" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">تفاصيل الرسالة (اختياري)</label>
+                            <textarea name="message" class="form-control" rows="3" placeholder="اكتب التعليمات هنا..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">إرفاق ملف (صورة، PDF، Word، Excel)</label>
+                            <input type="file" name="file" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold">إرسال الآن</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- قسم إضافة مخزن جديد -->
+            <div class="col-md-5">
+                <div class="card shadow-sm p-4 mb-4">
+                    <h5 class="fw-bold mb-3 text-dark">إضافة حساب مخزن جديد</h5>
+                    <form action="/admin/add-warehouse" method="POST">
+                        <div class="mb-2">
+                            <label class="form-label">اسم المخزن / الفرع</label>
+                            <input type="text" name="name" class="form-control" placeholder="مثال: مخزن المسيلة 01" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">البريد الإلكتروني (Gmail)</label>
+                            <input type="email" name="email" class="form-control" placeholder="branch1@gmail.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">كلمة السر الخاصة بالمخزن</label>
+                            <input type="text" name="password" class="form-control" placeholder="اختر كلمة سر للمخزن" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">إنشاء حساب المخزن</button>
+                    </form>
+                </div>
+
+                <!-- قائمة المخازن المسجلة -->
+                <div class="card shadow-sm p-3">
+                    <h6 class="fw-bold mb-2">المخازن المسجلة</h6>
+                    <ul class="list-group list-group-flush" id="warehousesList"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- سجل الإرسالات السابقة -->
+        <div class="card shadow-sm p-4 my-4">
+            <h5 class="fw-bold mb-3">سجل الملفات والأعمال المرسلة</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>العنوان</th>
+                            <th>المستلم</th>
+                            <th>الملف المرفق</th>
+                            <th>التاريخ</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('/admin/data')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('warehouseSelect');
+                const list = document.getElementById('warehousesList');
+                
+                data.warehouses.forEach(w => {
+                    // إضافة المخزن لقائمة الاختيار
+                    const opt = document.createElement('option');
+                    opt.value = w.email;
+                    opt.textContent = `🏢 ${w.name} (${w.email})`;
+                    select.appendChild(opt);
+
+                    // عرض المخزن في القائمة الجانبية
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center px-0';
+                    li.innerHTML = `
+                        <div><strong>${w.name}</strong><br><small class="text-muted">${w.email}</small></div>
+                        <form action="/admin/delete-warehouse/${w.id}" method="POST" onsubmit="return confirm('حذف هذا المخزن؟')">
+                            <button class="btn btn-sm btn-outline-danger">حذف</button>
+                        </form>
+                    `;
+                    list.appendChild(li);
+                });
+
+                const tbody = document.getElementById('tasksTable');
+                data.tasks.forEach(t => {
+                    const targetText = t.target_email === 'all' ? '<span class="badge bg-primary">جميع المخازن</span>' : t.target_email;
+                    const fileLink = t.file_path ? `<a href="${t.file_path}" target="_blank" class="btn btn-sm btn-info text-white">فتح / تحميل</a>` : 'لا يوجد';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${t.title}</strong><br><small class="text-muted">${t.message || ''}</small></td>
+                        <td>${targetText}</td>
+                        <td>${fileLink}</td>
+                        <td><small>${t.created_at}</small></td>
+                        <td>
+                            <form action="/admin/delete-task/${t.id}" method="POST" onsubmit="return confirm('حذف هذا الإرسال؟')">
+                                <button class="btn btn-sm btn-danger">حذف</button>
+                            </form>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المخزن - إدارة الملفات والمهام</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark px-4 mb-4">
+        <span class="navbar-brand fw-bold" id="warehouseTitle">بوابة المخزن</span>
+        <a href="/logout" class="btn btn-outline-light btn-sm">تسجيل الخروج</a>
+    </nav>
+
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <!-- نموذج إرسال ملف أو تقرير من المخزن -->
+            <div class="col-md-5">
+                <div class="card shadow-sm p-4">
+                    <h5 class="fw-bold mb-3 text-dark">إرسال وثيقة أو عمل جديد</h5>
+                    <form action="/warehouse/send-task" method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">الجهة المستلمة</label>
+                            <select name="target_email" id="recipientSelect" class="form-select" required>
+                                <option value="all">📢 إرسال إلى الجميع (المديرية وكل المخازن)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">عنوان الموضوع / العمل</label>
+                            <input type="text" name="title" class="form-control" placeholder="مثال: تقرير المخزون الشهري" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">تفاصيل الرسالة (اختياري)</label>
+                            <textarea name="message" class="form-control" rows="2" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">إرفاق ملف (صورة، PDF...)</label>
+                            <input type="file" name="file" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">إرسال الآن</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- قائمة الملفات الواردة -->
+            <div class="col-md-7">
+                <h5 class="fw-bold mb-3">الملفات والتعليمات الواردة إليك</h5>
+                <div class="row g-3" id="tasksContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        fetch('/warehouse/data')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('warehouseTitle').textContent = `مرحباً: ${data.name} (المخزن)`;
+                
+                // تعبئة قائمة المستلمين (المديرية وبقية المخازن)
+                const select = document.getElementById('recipientSelect');
+                data.recipients.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r.email;
+                    if (r.role === 'admin') {
+                        opt.textContent = `🏛️ مقر المديرية (${r.name})`;
+                    } else {
+                        opt.textContent = `🏢 مخزن: ${r.name}`;
+                    }
+                    select.appendChild(opt);
+                });
+
+                // عرض المهام والملفات الواردة
+                const container = document.getElementById('tasksContainer');
+                if (data.tasks.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info">لا توجد ملفات أو مهام واردة حالياً.</div>';
+                    return;
+                }
+
+                data.tasks.forEach(t => {
+                    const badge = t.target_email === 'all' 
+                        ? '<span class="badge bg-secondary">تعميم عام</span>' 
+                        : '<span class="badge bg-success">موجه إليك</span>';
+
+                    const fileBtn = t.file_path 
+                        ? `<a href="${t.file_path}" download="${t.file_name || 'file'}" target="_blank" class="btn btn-sm btn-primary mt-2">📥 تحميل الملف (${t.file_name || 'مرفق'})</a>` 
+                        : '';
+
+                    const col = document.createElement('div');
+                    col.className = 'col-12';
+                    col.innerHTML = `
+                        <div class="card shadow-sm p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h6 class="fw-bold text-primary mb-0">${t.title}</h6>
+                                ${badge}
+                            </div>
+                            <p class="text-secondary small mb-2">${t.message || 'بدون تفاصيل إضافية'}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                ${fileBtn}
+                                <small class="text-muted">${t.created_at}</small>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(col);
+                });
+            });
+    </script>
+</body>
+</html>
