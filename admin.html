@@ -64,7 +64,7 @@
                     </form>
                 </div>
 
-                <!-- قسم إعدادات حساب المدير (تغيير الاسم، الإيميل، كلمة السر) -->
+                <!-- قسم إعدادات حساب المدير -->
                 <div class="card shadow-sm p-4 mb-4">
                     <h5 class="fw-bold mb-3 text-secondary">إعدادات حساب المدير</h5>
                     <form action="/admin/update-profile" method="POST">
@@ -116,23 +116,20 @@
         fetch('/admin/data')
             .then(res => res.json())
             .then(data => {
-                const select = document.getElementById('warehouseSelect');
-                const list = document.getElementById('warehousesList');
-                
-                // إذا أردت جلب بيانات المدير وعرضها في خانات التعديل (يمكننا إضافتها لاحقاً أو تركها تملأ يدوياً)
                 if(data.email) {
                     document.getElementById('adminEmailInput').value = data.email;
                     document.getElementById('adminNameInput').value = data.name;
                 }
 
+                const select = document.getElementById('warehouseSelect');
+                const list = document.getElementById('warehousesList');
+                
                 data.warehouses.forEach(w => {
-                    // إضافة المخزن لقائمة الاختيار
                     const opt = document.createElement('option');
                     opt.value = w.email;
                     opt.textContent = `🏢 ${w.name} (${w.email})`;
                     select.appendChild(opt);
 
-                    // عرض المخزن في القائمة الجانبية
                     const li = document.createElement('li');
                     li.className = 'list-group-item d-flex justify-content-between align-items-center px-0';
                     li.innerHTML = `

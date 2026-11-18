@@ -65,7 +65,7 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 } // صالح لمدة 24 ساعة
 }));
 
-// إعداد رفع الملفات (يدعم الصور، PDF، Word، Excel...)
+// إعداد رفع الملفات
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
@@ -114,7 +114,7 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/login.html'));
 });
 
-// [المديرية] تحديث بيانات حساب المدير (الاسم، البريد، كلمة المرور)
+// [المديرية] تحديث بيانات حساب المدير
 app.post('/admin/update-profile', isAdmin, async (req, res) => {
     const { name, email, password } = req.body;
     const adminId = req.session.user.id;
@@ -176,7 +176,7 @@ app.post('/admin/delete-warehouse/:id', isAdmin, (req, res) => {
     });
 });
 
-// [المديرية] إرسال ملف أو عمل (للجميع أو لمخزن محدد)
+// [المديرية] إرسال ملف أو عمل
 app.post('/admin/send-task', isAdmin, upload.single('file'), (req, res) => {
     const { title, message, target_email } = req.body;
     const file_path = req.file ? `/uploads/${req.file.filename}` : null;
@@ -196,16 +196,16 @@ app.post('/admin/delete-task/:id', isAdmin, (req, res) => {
     });
 });
 
-// [المديرية] جلب البيانات للوحة التحكم
+// [المديرية] جلب البيانات
 app.get('/admin/data', isAdmin, (req, res) => {
     db.all(`SELECT id, name, email FROM users WHERE role = 'warehouse'`, [], (err, warehouses) => {
         db.all(`SELECT * FROM tasks ORDER BY created_at DESC`, [], (err, tasks) => {
-            res.json({ warehouses, tasks });
+            res.json({ warehouses, tasks, email: req.session.user.email, name: req.session.user.name });
         });
     });
 });
 
-// [المخزن] إرسال ملف أو تقرير إلى المديرية أو مخزن آخر أو الجميع
+// [المخزن] إرسال ملف أو تقرير
 app.post('/warehouse/send-task', isWarehouse, upload.single('file'), (req, res) => {
     const { title, message, target_email } = req.body;
     const senderName = req.session.user.name;
@@ -220,7 +220,7 @@ app.post('/warehouse/send-task', isWarehouse, upload.single('file'), (req, res) 
     );
 });
 
-// [المخزن] جلب الملفات والجهات المتاحة للمخزن
+// [المخزن] جلب الملفات والجهات
 app.get('/warehouse/data', isWarehouse, (req, res) => {
     const userEmail = req.session.user.email;
     const userName = req.session.user.name;
