@@ -54,8 +54,8 @@ db.serialize(() => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// التوجيه الصحيح والنهائي للملفات الثابتة (HTML, CSS, الصور خلفية bg.png والشعار logo.png داخل مجلد public)
-app.use(express.static(path.join(__dirname, 'public')));
+// التوجيه الصحيح لقراءة الملفات الثابتة والرسومات من الجذر مباشرة حيث توجد ملفات الـ HTML والصور
+app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(session({
@@ -86,9 +86,9 @@ function isWarehouse(req, res, next) {
     res.redirect('/login.html');
 }
 
-// الصفحة الرئيسية توجه مباشرة لصفحة الدخول داخل مجلد public
+// الصفحة الرئيسية توجه مباشرة لصفحة الدخول في الجذر
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // تسجيل الدخول
