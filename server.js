@@ -54,9 +54,9 @@ db.serialize(() => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// قراءة الملفات مباشرة من مجلد المشروع (الجذر) حيث توجد ملفات الـ HTML والصور
-app.use(express.static(__dirname));
-app.use('/uploads', express.static('uploads'));
+// توجيه صحيح ونهائي للملفات الثابتة (HTML, CSS, الصور داخل مجلد public)
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(session({
     secret: 'algeria_directorate_secret_2026',
@@ -88,7 +88,7 @@ function isWarehouse(req, res, next) {
 
 // الصفحة الرئيسية توجه مباشرة لصفحة الدخول
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 // تسجيل الدخول
