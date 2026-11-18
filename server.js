@@ -53,8 +53,11 @@ db.serialize(() => {
 // إعدادات Express والجلسات
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('public'));
+
+// قراءة الملفات مباشرة من مجلد المشروع (الجذر) حيث توجد ملفات الـ HTML والصور
+app.use(express.static(__dirname));
 app.use('/uploads', express.static('uploads'));
+
 app.use(session({
     secret: 'algeria_directorate_secret_2026',
     resave: false,
@@ -83,9 +86,9 @@ function isWarehouse(req, res, next) {
     res.redirect('/login.html');
 }
 
-// الصفحة الرئيسية توجه لصفحة الدخول
+// الصفحة الرئيسية توجه مباشرة لصفحة الدخول
 app.get('/', (req, res) => {
-    res.redirect('/login.html');
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // تسجيل الدخول
@@ -187,7 +190,6 @@ app.get('/warehouse/data', isWarehouse, (req, res) => {
     const userEmail = req.session.user.email;
     const userName = req.session.user.name;
 
-    // جلب كل المستخدمين (المديرية والمخازن الأخرى) ما عدا المخزن نفسه
     db.all(`SELECT name, email, role FROM users WHERE email != ?`, [userEmail], (err, recipients) => {
         db.all(
             `SELECT * FROM tasks WHERE target_email = 'all' OR target_email = ? ORDER BY created_at DESC`,
