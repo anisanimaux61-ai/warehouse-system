@@ -3,50 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم المديرية - تعاونية الحبوب والبقول الجافة</title>
+    <title>لوحة تحكم المديرية - تعاونية الحبوب والبقول الجافة - سطيف</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <style>
-        /* خلفية إدارية احترافية تدعم طابع الأرشفة والملفات والـ PDF/Word مع تدرج داكن مريح للعين */
+        /* استدعاء صورتك الخاصة كخلفية للموقع مع طبقة تعتيم داكنة خفيفة لضمان وضوح النصوص والجداول */
         body {
-            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.92)), 
-                        url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background: linear-gradient(rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.88)), 
+                        url('images/bg.png') no-repeat center center fixed; /* عدل مسار الصورة حسب مكانها عندك في المشروع */
             background-size: cover;
             color: #f8fafc;
             min-height: 100vh;
         }
 
-        /* تصميم البطاقات بزجاجيات شفافة (Glassmorphism) تبرز الوثائق والملفات */
+        /* تصميم البطاقات بزجاجيات شفافة أنيقة لتبرز فوق الخلفية */
         .card {
             background: rgba(30, 41, 59, 0.85) !important;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #f8fafc;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
         .card h5, .card h6, .card label {
             color: #f8fafc !important;
         }
 
-        /* تخصيص النوافذ والجداول لتتطابق مع المظهر الداكن الاحترافي */
+        /* تخصيص الجداول والعناصر لتتوافق مع المظهر الاحترافي */
         .table {
             color: #f8fafc;
             border-color: rgba(255, 255, 255, 0.1);
         }
 
-        .table-light {
-            background-color: rgba(51, 65, 85, 0.9) !important;
-            color: #fff !important;
-        }
-
-        .table-light th {
-            background-color: rgba(51, 65, 85, 0.9) !important;
+        .table-light, .table-light th {
+            background-color: rgba(51, 65, 85, 0.95) !important;
             color: #fff !important;
             border-color: rgba(255, 255, 255, 0.1);
         }
 
         .form-control, .form-select {
-            background-color: rgba(15, 23, 42, 0.8);
+            background-color: rgba(15, 23, 42, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
         }
@@ -77,7 +72,7 @@
 </head>
 <body>
     <nav class="navbar navbar-dark px-4 mb-4">
-        <span class="navbar-brand fw-bold">📁 لوحة تحكم مقر المديرية (إدارة الملفات والوثائق)</span>
+        <span class="navbar-brand fw-bold">🌾 لوحة تحكم مقر المديرية - تعاونية الحبوب والبقول الجافة - سطيف</span>
         <a href="/logout" class="btn btn-outline-light btn-sm">تسجيل الخروج</a>
     </nav>
 
@@ -119,7 +114,7 @@
                     <form action="/admin/add-warehouse" method="POST">
                         <div class="mb-2">
                             <label class="form-label">اسم المخزن / الفرع</label>
-                            <input type="text" name="name" class="form-control" placeholder="مثال: مخزن المسيلة 01" required>
+                            <input type="text" name="name" class="form-control" placeholder="مثال: مخزن مزلوق 01" required>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">البريد الإلكتروني (Gmail)</label>
