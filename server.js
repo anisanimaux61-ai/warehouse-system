@@ -9,7 +9,7 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// التأكد من وجود مجلد uploads لحفظ الملفات
+// التأكد من وجود مجلد uploads لحفظ الملفات المرفقة
 if (!fs.existsSync('./uploads')) {
     fs.mkdirSync('./uploads');
 }
@@ -54,7 +54,7 @@ db.serialize(() => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// توجيه صحيح ونهائي للملفات الثابتة (HTML, CSS, الصور داخل مجلد public)
+// التوجيه الصحيح والنهائي للملفات الثابتة (HTML, CSS, الصور خلفية bg.png والشعار logo.png داخل مجلد public)
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -62,10 +62,10 @@ app.use(session({
     secret: 'algeria_directorate_secret_2026',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 } // صالح لمدة 24 ساعة
+    cookie: { maxAge: 24 * 60 * 60 * 1000 } // الجلسة صالحة لمدة 24 ساعة
 }));
 
-// إعداد رفع الملفات
+// إعداد رفع الملفات عبر Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
@@ -75,7 +75,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// حماية المسارات
+// وظائف حماية المسارات
 function isAdmin(req, res, next) {
     if (req.session.user && req.session.user.role === 'admin') return next();
     res.redirect('/login.html');
@@ -86,7 +86,7 @@ function isWarehouse(req, res, next) {
     res.redirect('/login.html');
 }
 
-// الصفحة الرئيسية توجه مباشرة لصفحة الدخول
+// الصفحة الرئيسية توجه مباشرة لصفحة الدخول داخل مجلد public
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
