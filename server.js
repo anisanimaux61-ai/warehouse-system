@@ -114,6 +114,41 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/login.html'));
 });
 
+// [المديرية] تحديث بيانات حساب المدير (الاسم، البريد، كلمة المرور)
+app.post('/admin/update-profile', isAdmin, async (req, res) => {
+    const { name, email, password } = req.body;
+    const adminId = req.session.user.id;
+
+    try {
+        if (password && password.trim() !== "") {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            db.run(
+                `UPDATE users SET name = ?, email = ?, password = ? WHERE id = ? AND role = 'admin'`,
+                [name, email.trim().toLowerCase(), hashedPassword, adminId],
+                (err) => {
+                    if (err) return res.send('<script>alert("البريد الإلكتروني مستخدم من قبل!"); window.location="/admin.html";</script>');
+                    req.session.user.name = name;
+                    req.session.user.email = email;
+                    res.send('<script>alert("تم تحديث البيانات بنجاح، يرجى تسجيل الدخول مجدداً"); window.location="/logout";</script>');
+                }
+            );
+        } else {
+            db.run(
+                `UPDATE users SET name = ?, email = ? WHERE id = ? AND role = 'admin'`,
+                [name, email.trim().toLowerCase(), adminId],
+                (err) => {
+                    if (err) return res.send('<script>alert("البريد الإلكتروني مستخدم من قبل!"); window.location="/admin.html";</script>');
+                    req.session.user.name = name;
+                    req.session.user.email = email;
+                    res.send('<script>alert("تم تحديث البيانات بنجاح!"); window.location="/admin.html";</script>');
+                }
+            );
+        }
+    } catch (e) {
+        res.status(500).send('حدث خطأ في السيرفر');
+    }
+});
+
 // [المديرية] إضافة مخزن جديد
 app.post('/admin/add-warehouse', isAdmin, async (req, res) => {
     const { name, email, password } = req.body;

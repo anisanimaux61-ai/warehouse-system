@@ -16,7 +16,7 @@
         <div class="row g-4">
             <!-- قسم إرسال ملف أو عمل -->
             <div class="col-md-7">
-                <div class="card shadow-sm p-4">
+                <div class="card shadow-sm p-4 mb-4">
                     <h5 class="fw-bold mb-3 text-primary">إرسال ملف أو تعليمة عمل</h5>
                     <form action="/admin/send-task" method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
@@ -42,8 +42,9 @@
                 </div>
             </div>
 
-            <!-- قسم إضافة مخزن جديد -->
+            <!-- قسم إضافة مخزن جديد + إعدادات حساب المدير -->
             <div class="col-md-5">
+                <!-- قسم إضافة مخزن جديد -->
                 <div class="card shadow-sm p-4 mb-4">
                     <h5 class="fw-bold mb-3 text-dark">إضافة حساب مخزن جديد</h5>
                     <form action="/admin/add-warehouse" method="POST">
@@ -60,6 +61,26 @@
                             <input type="text" name="password" class="form-control" placeholder="اختر كلمة سر للمخزن" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">إنشاء حساب المخزن</button>
+                    </form>
+                </div>
+
+                <!-- قسم إعدادات حساب المدير (تغيير الاسم، الإيميل، كلمة السر) -->
+                <div class="card shadow-sm p-4 mb-4">
+                    <h5 class="fw-bold mb-3 text-secondary">إعدادات حساب المدير</h5>
+                    <form action="/admin/update-profile" method="POST">
+                        <div class="mb-2">
+                            <label class="form-label">اسم المدير / المديرية</label>
+                            <input type="text" name="name" id="adminNameInput" class="form-control" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">البريد الإلكتروني</label>
+                            <input type="email" name="email" id="adminEmailInput" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">كلمة المرور الجديدة</label>
+                            <input type="password" name="password" class="form-control" placeholder="اتركها فارغة إذا لم ترد تغييرها">
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">حفظ تعديلات الحساب</button>
                     </form>
                 </div>
 
@@ -98,6 +119,12 @@
                 const select = document.getElementById('warehouseSelect');
                 const list = document.getElementById('warehousesList');
                 
+                // إذا أردت جلب بيانات المدير وعرضها في خانات التعديل (يمكننا إضافتها لاحقاً أو تركها تملأ يدوياً)
+                if(data.email) {
+                    document.getElementById('adminEmailInput').value = data.email;
+                    document.getElementById('adminNameInput').value = data.name;
+                }
+
                 data.warehouses.forEach(w => {
                     // إضافة المخزن لقائمة الاختيار
                     const opt = document.createElement('option');
